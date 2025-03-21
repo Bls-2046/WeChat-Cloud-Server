@@ -24,6 +24,8 @@ public class WeChatController {
     public ScheduleResponse sendReminderMessage(@RequestBody ScheduleRequest request) {
 
         ScheduleResponse response = new ScheduleResponse();
+        ScheduleResponse.ReminderMessage reminderMessage;
+
         try {
             // 对请求服务器的密钥进行验证
             if (ScheduleRequest.verifyRequest(request.getRequestKey()) || request.getRequestKey() == null) {
@@ -32,14 +34,14 @@ public class WeChatController {
                 return response;
             }
 
-            ScheduleResponse.ReminderMessage reminderMessage = weChatServer.sendReminderMessage(request);
-
             // 若返回值为空, 说明后端未正确传递日志信息
-            if (reminderMessage == null) {
+            if (request.getReminderMessage() == null) {
                 response.setStatus(400);
                 response.setMessage("未设置用户日志数据");
                 return response;
             }
+
+            reminderMessage = weChatServer.sendReminderMessage(request);
 
         } catch (Exception e) {
             response.setStatus(500);
@@ -50,6 +52,7 @@ public class WeChatController {
         // 发送成功
         response.setStatus(200);
         response.setMessage("send success");
+        response.setReminderMessage(reminderMessage);
         return response;
     }
 }
