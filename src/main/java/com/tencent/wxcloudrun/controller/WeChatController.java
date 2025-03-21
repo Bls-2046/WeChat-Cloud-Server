@@ -4,11 +4,13 @@ import com.tencent.wxcloudrun.dto.ScheduleRequest;
 import com.tencent.wxcloudrun.dto.ScheduleResponse;
 import com.tencent.wxcloudrun.service.WeChatServer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller("/wechat/api")
+@RestController
+@RequestMapping("/wechat/api")
 public class WeChatController {
     private final WeChatServer weChatServer;
 
