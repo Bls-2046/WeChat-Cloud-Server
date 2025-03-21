@@ -26,6 +26,8 @@ public class WeChatServerImpl implements WeChatServer {
 
         String url = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=" + ACCESS_TOKEN;
 
+        System.out.println(url);
+
         JSONObject body = new JSONObject();
         body.put("touser", request.getReminderMessage().getUserID()); // 用户的 OpenID
         body.put("msgtype", "text"); // 消息类型
