@@ -15,3 +15,9 @@ spring:
 
 mybatis:
   mapper-locations: classpath*:mapper/*Mapper.xml
+
+wechat:
+  appid:
+    wx333b97c8e0d3fd66
+  secret:
+    7ac6b956806e187af28a7fa9d94a1d4d

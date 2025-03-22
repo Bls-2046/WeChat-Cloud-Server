@@ -1,11 +1,11 @@
 package com.tencent.wxcloudrun.config;
 
-import com.tencent.wxcloudrun.service.impl.WeChatServerImpl;
+import com.tencent.wxcloudrun.service.impl.WeChatServiceImpl;
 import org.springframework.context.annotation.Bean;
 
 public class PluginsConfig {
     public PluginsConfig() throws Exception {
-        WeChatServerImpl.getAccessToken();
+        // WeChatServiceImpl.getAccessToken();
     }
 
     @Bean
