@@ -49,10 +49,15 @@ public class WeChatController {
             return response;
         }
 
-        // 发送成功
-        response.setStatus(200);
-        response.setMessage("send success");
-        response.setReminderMessage(reminderMessage);
+        if (reminderMessage != null) {
+            response.setStatus(200);
+            response.setMessage("发送成功");
+            response.setReminderMessage(reminderMessage);
+            return response;
+        }
+
+        response.setStatus(400);
+        response.setMessage("发送失败");
         return response;
     }
 }

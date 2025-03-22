@@ -21,7 +21,7 @@ public class ScheduleRequest {
 
     @Data
     public static class ReminderMessage {
-        private String userID;
+        private String OpenID;
         private String eventTitle;
         private LocalDateTime eventDateTime;
         private String eventDescription;

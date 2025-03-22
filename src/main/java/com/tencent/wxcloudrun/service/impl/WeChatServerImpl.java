@@ -11,8 +11,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class WeChatServerImpl implements WeChatServer {
@@ -20,36 +18,50 @@ public class WeChatServerImpl implements WeChatServer {
 
     @Override
     public ScheduleResponse.ReminderMessage sendReminderMessage(ScheduleRequest request) {
-        String eventTitle = request.getReminderMessage().getEventTitle();
-        LocalDateTime eventDateTime = request.getReminderMessage().getEventDateTime();
-        String EventDescription = request.getReminderMessage().getEventDescription();
+        try {
+            getAccessToken();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        String url = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=" + ACCESS_TOKEN;
+        if (getACCESS_TOKEN() == null) {
+            System.out.println("=======================================================================");
+        }
+        String url = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=" + getACCESS_TOKEN();
 
         System.out.println(url);
 
         JSONObject body = new JSONObject();
-        body.put("touser", request.getReminderMessage().getUserID()); // 用户的 OpenID
+        body.put("touser", request.getReminderMessage().getOpenID()); // 用户的 OpenID
         body.put("msgtype", "text"); // 消息类型
+
+        String eventTitle = request.getReminderMessage().getEventTitle();
+        LocalDateTime eventDateTime = request.getReminderMessage().getEventDateTime();
+        String EventDescription = request.getReminderMessage().getEventDescription();
 
         JSONObject content = new JSONObject();
         String message = "【" + eventTitle + "/" + eventDateTime + "】 " + EventDescription;
         content.put("content", message); // 消息内容
         body.put("text", content);
 
+        System.out.println(body);
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         JSONObject response = (JSONObject) Https.post(url, body, headers);
 
+        System.out.println("=======================================================================" + response);
+
         if (response != null) {
+            System.out.println("=======================================================================" + response.optInt("errcode"));
             if (response.optInt("errcode", -1) != 0) {
                 return null;
             }
         }
 
         ScheduleResponse.ReminderMessage reminderMessage = new ScheduleResponse.ReminderMessage();
-        reminderMessage.setUserID(request.getReminderMessage().getUserID());
+        reminderMessage.setUserID(request.getReminderMessage().getOpenID());
         reminderMessage.setEventTitle(eventTitle);
         reminderMessage.setEventDateTime(eventDateTime);
         reminderMessage.setEventDescription(EventDescription);
@@ -61,20 +73,27 @@ public class WeChatServerImpl implements WeChatServer {
     @Scheduled(fixedRate = 5000000)
     public static void getAccessToken() throws Exception {
 
-        Map<String, String> params = new HashMap<>();
-        params.put("grant_type", "client_credential");
-        params.put("appid", System.getenv("WECHAT_APPID"));
-        params.put("secret", System.getenv("WECHAT_SECRET"));
+        // 构建请求体
+        JSONObject body = new JSONObject();
+        body.put("grant_type", "client_credential");
+        body.put("appid", System.getenv("WECHAT_APPID"));
+        body.put("secret", System.getenv("WECHAT_SECRET"));
 
+        // 构建标头
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        JSONObject response = Https.get("https://api.weixin.qq.com/cgi-bin/token", params, headers);
+        // 发起 post 请求获取 access_token
+        JSONObject response = (JSONObject) Https.post("https://api.weixin.qq.com/cgi-bin/token", body, headers);
 
-        String access_token = response.getString("access_token");
+        String access_token = null;
+
+        if (response != null) {
+            access_token = response.getString("access_token");
+        }
 
         if (access_token == null) {
-            throw new Exception("获取数据失败");
+            throw new Exception("access_token 获取失败");
         }
 
         WeChatServerImpl.setACCESS_TOKEN(access_token);
